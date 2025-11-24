@@ -9,7 +9,7 @@
     :root{--bg:#07070b;--panel:linear-gradient(180deg,#0f1116,#0b0c10);--card:#0d1116;--accent:#7b8cff;--muted:#9aa0b4;--glass:rgba(255,255,255,0.03);--highlight:#c7d2ff}
     *{box-sizing:border-box;margin:0;padding:0}
     body{min-height:100vh;background:radial-gradient(circle at 10% 10%,#0b0b12 0%,#050507 50%);color:var(--highlight);font-family:Segoe UI,Roboto,Arial;display:flex;align-items:flex-start;justify-content:center;padding:12px}
-    .app{width:100%;max-width:1000px;display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+    .app{width:100%;max-width:1100px;display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
     header{grid-column:1/-1;background:var(--panel);padding:14px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 8px 30px rgba(8,8,12,0.6)}
     .brand{display:flex;gap:12px;align-items:center}
     .brand-logo{width:64px;height:64px;background:linear-gradient(145deg,var(--accent),#4f5bff);border-radius:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(123,140,255,0.4)}
@@ -17,7 +17,7 @@
     .brand h1{font-size:18px;margin:0;letter-spacing:1px;text-transform:uppercase;background:linear-gradient(90deg,#fff,#aaa);-webkit-background-clip:text;background-clip:text;color:transparent}
     .subtitle{color:var(--muted);font-size:13px}
     .user-area{display:flex;gap:8px;align-items:center}
-    .avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
     .avatar img{width:100%;height:100%;object-fit:cover}
     .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700;background:linear-gradient(180deg,#232338,#111219);color:var(--highlight);display:inline-flex;gap:8px;align-items:center}
     .btn.primary{background:linear-gradient(180deg,#4f5bff,#3540c8)}
@@ -31,7 +31,7 @@
     .tile img{width:100%;height:100%;object-fit:cover;display:block}
     .tile.selected{box-shadow:0 10px 30px rgba(123,140,255,0.18);outline:3px solid rgba(123,140,255,0.08);transform:translateY(-6px)}
     .tile.correct{box-shadow:0 10px 30px rgba(74,222,128,0.18);outline:3px solid rgba(74,222,128,0.08)}
-    .controls{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+    .controls{display:flex;gap:8px;margin-top:16px}
     .leaderboard{background:var(--card);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);max-height:72vh;overflow:auto}
     .leaderboard h2{margin:0 0 12px 0;color:var(--highlight);font-size:16px;text-transform:uppercase;text-align:center}
     .leader-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
@@ -44,11 +44,11 @@
     .modal-input{width:100%;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:rgba(255,255,255,0.05);color:var(--highlight);margin-bottom:12px}
     .confetti{position:fixed;width:10px;height:10px;opacity:0;animation:confetti 3s ease-in-out forwards;z-index:999}
     @keyframes confetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(360deg);opacity:0}}
-    @media(max-width:920px){.app{grid-template-columns:1fr;}.leaderboard{order:2}}
+    @media(max-width:980px){.app{grid-template-columns:1fr;}.leaderboard{order:2}}
   </style>
 </head>
 <body>
-  <div class="app">
+  <div class="app" role="application">
     <header>
       <div class="brand">
         <div class="brand-logo"><i class="fas fa-puzzle-piece"></i></div>
@@ -58,13 +58,14 @@
         </div>
       </div>
 
-      <div class="user-area" id="userArea">
+      <div class="user-area" id="userArea" aria-live="polite">
         <button class="btn primary" id="loginBtn"><i class="fab fa-google"></i> Sign in with Google</button>
       </div>
     </header>
 
-    <main class="panel" aria-labelledby="gameTitle">
-      <div class="stats" role="region" aria-label="game stats">
+    <!-- Left: Game -->
+    <main class="panel" id="gamePanel" role="main">
+      <div class="stats" aria-hidden="false">
         <div class="stat">
           <div class="val" id="timer">00:00</div>
           <div class="lbl">Time</div>
@@ -83,28 +84,30 @@
         <div class="game-board" id="gameBoard" aria-live="polite"></div>
       </div>
 
-      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-        <div style="background:rgba(255,255,255,0.05);padding:8px 12px;border-radius:20px;font-size:12px;color:var(--muted)">অদলবদল করতে দুটি টাইল ট্যাপ করুন</div>
-        <div style="background:rgba(255,255,255,0.05);padding:8px 12px;border-radius:20px;font-size:12px;color:var(--muted)">Correct pieces glow green</div>
-        <div style="background:rgba(255,255,255,0.05);padding:8px 12px;border-radius:20px;font-size:12px;color:var(--muted)">Score based on time & moves</div>
+      <div class="features" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+        <div class="feature" style="background:rgba(255,255,255,0.05);padding:8px 12px;border-radius:20px;font-size:12px;color:var(--muted)">অদলবদল করতে দুটি টাইল ট্যাপ করুন</div>
+        <div class="feature" style="background:rgba(255,255,255,0.05);padding:8px 12px;border-radius:20px;font-size:12px;color:var(--muted)">Correct pieces glow green</div>
+        <div class="feature" style="background:rgba(255,255,255,0.05);padding:8px 12px;border-radius:20px;font-size:12px;color:var(--muted)">Score based on time & moves</div>
       </div>
 
-      <div class="controls" style="margin-top:14px">
-        <button class="btn primary" id="startBtn"><i class="fas fa-play"></i> Start Game</button>
+      <div class="controls">
+        <button class="btn primary" id="startBtn"><i class="fas fa-play"></i> Start</button>
         <button class="btn" id="shuffleBtn"><i class="fas fa-random"></i> Shuffle</button>
         <button class="btn" id="leaderboardBtn"><i class="fas fa-trophy"></i> Scores</button>
       </div>
     </main>
 
-    <aside class="leaderboard" id="leaderboardPanel">
-      <h2>Top Scores</h2>
-      <ul class="leader-list" id="leaderList"></ul>
+    <!-- Right: Leaderboard -->
+    <aside class="leaderboard" id="leaderboardPanel" aria-labelledby="leaderboardTitle">
+      <h2 id="leaderboardTitle">Top Scores</h2>
+      <ul class="leader-list" id="leaderList" aria-live="polite"></ul>
     </aside>
 
     <footer>Built for Black Force 007 — Ready to Deploy</footer>
   </div>
 
-  <div class="modal" id="saveModal" role="dialog" aria-modal="true">
+  <!-- Save Score Modal -->
+  <div class="modal" id="saveModal" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-content">
       <h3 style="color:var(--highlight);text-align:center;margin-bottom:12px">Save Your Score</h3>
       <input id="playerName" class="modal-input" placeholder="Enter your name (max 20)" maxlength="20" />
@@ -115,35 +118,44 @@
     </div>
   </div>
 
-  <!-- Firebase + Game Script -->
+  <!-- Firebase + Game Script (module) -->
   <script type="module">
-    // Firebase modular SDK
+    // ---------- Firebase modular SDK ----------
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import {
+      getDatabase, ref, push, onValue, get
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signInWithRedirect,
+      getRedirectResult,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    // ---------- YOUR FIREBASE CONFIG ----------
+    // ---------- Replace with your Firebase config ----------
     const firebaseConfig = {
-      apiKey: "AIzaSyBFbfVCHzWS9ZfsI_R7G5L95lIdsaAjqhM",
-      authDomain: "membership-007.firebaseapp.com",
-      databaseURL: "https://membership-007-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "membership-007",
-      storageBucket: "membership-007.firebasestorage.app",
-      messagingSenderId: "260769258496",
-      appId: "1:260769258496:web:948c596e84f14c0c7f4ce5",
-      measurementId: "G-PHW10NPS0B"
+      apiKey: "AIzaSyCPtW60j4oX2sf-Z3W5ZJX98_VO5b4w1KY",
+      authDomain: "membership-new-game-007.firebaseapp.com",
+      projectId: "membership-new-game-007",
+      storageBucket: "membership-new-game-007.firebasestorage.app",
+      messagingSenderId: "462206887402",
+      appId: "1:462206887402:web:8ae6eb4ae0721f7d00be93",
+      measurementId: "G-BYLD880ZFD"
     };
 
-    // Initialize Firebase services
+    // ---------- Init Firebase ----------
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    // DB ref
+    // Leaderboard DB ref
     const leaderboardRef = ref(db, 'puzzleLeaderboard');
 
-    // Game images (12)
+    // ---------- Game images (12 pieces) ----------
     const PIECES = [
       "https://res.cloudinary.com/dajuuabos/image/upload/v1763906618/1763905601546_1_s0wrla.png",
       "https://res.cloudinary.com/dajuuabos/image/upload/v1763906618/1763905601546_6_qbjlgx.png",
@@ -155,11 +167,11 @@
       "https://res.cloudinary.com/dajuuabos/image/upload/v1763906617/1763905601546_10_ebby9p.png",
       "https://res.cloudinary.com/dajuuabos/image/upload/v1763906617/1763905601546_4_haza6x.png",
       "https://res.cloudinary.com/dajuuabos/image/upload/v1763906616/1763905601546_5_smvwh5.png",
-      "https://res.cloudinary.com/dajuuabos/image/upload/v1763905601546_11_zwzrvu.png",
+      "https://res.cloudinary.com/dajuuabos/image/upload/v1763906616/1763905601546_11_zwzrvu.png",
       "https://res.cloudinary.com/dajuuabos/image/upload/v1763905601546_12_jmlthv.png"
     ];
 
-    // DOM
+    // ---------- DOM ----------
     const gameBoard = document.getElementById('gameBoard');
     const timerEl = document.getElementById('timer');
     const movesEl = document.getElementById('moves');
@@ -175,7 +187,7 @@
     const loginBtn = document.getElementById('loginBtn');
     const userArea = document.getElementById('userArea');
 
-    // State
+    // ---------- State ----------
     let state = {
       order: [],
       current: [],
@@ -188,12 +200,15 @@
       correctPieces: []
     };
 
-    // Auth UI render
+    // ---------- Auth UI ----------
     function renderUser(user) {
       userArea.innerHTML = '';
       if (user) {
-        const avatar = document.createElement('div'); avatar.className = 'avatar';
-        const img = document.createElement('img'); img.src = user.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        const img = document.createElement('img');
+        img.src = user.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
+        img.alt = user.displayName || user.email || 'User';
         avatar.appendChild(img);
 
         const name = document.createElement('div');
@@ -203,8 +218,11 @@
         name.textContent = (user.displayName || user.email).split(' ')[0];
 
         const signOutBtn = document.createElement('button');
-        signOutBtn.className = 'btn'; signOutBtn.textContent = 'Sign out';
-        signOutBtn.addEventListener('click', () => signOut(auth).catch(err => console.error('signout',err)));
+        signOutBtn.className = 'btn';
+        signOutBtn.textContent = 'Sign out';
+        signOutBtn.addEventListener('click', () => {
+          signOut(auth).catch(err => console.error('SignOutError', err));
+        });
 
         userArea.appendChild(avatar);
         userArea.appendChild(name);
@@ -213,7 +231,7 @@
         const signInBtn = document.createElement('button');
         signInBtn.className = 'btn primary';
         signInBtn.innerHTML = '<i class="fab fa-google"></i> Sign in with Google';
-        signInBtn.addEventListener('click', doSignIn);
+        signInBtn.addEventListener('click', signInWithGoogle);
         userArea.appendChild(signInBtn);
       }
     }
@@ -222,27 +240,38 @@
       renderUser(user);
     });
 
-    // Try to sign-in with popup and handle errors (popup blocked on file:// or third-party)
-    async function doSignIn() {
+    // Try to complete redirect result (if used)
+    getRedirectResult(auth).catch(e => {
+      // ignore if none
+    });
+
+    // Sign in (use popup, fallback to redirect if popup blocked)
+    async function signInWithGoogle() {
       try {
         await signInWithPopup(auth, provider);
       } catch (err) {
-        console.error('Signin error', err);
-        alert('Google sign-in failed. আপনি যদি লোকাল টেস্ট করছেন, তাহলে ব্রাউজারে popup allow করুন বা সাইটটি https/localhost এ রান করান.');
+        console.warn('Popup failed, falling back to redirect:', err);
+        try {
+          await signInWithRedirect(auth, provider);
+        } catch (err2) {
+          console.error('Redirect also failed:', err2);
+          alert('Sign-in failed. Check console for details.');
+        }
       }
     }
 
-    // Header login btn (fallback)
-    loginBtn?.addEventListener('click', doSignIn);
+    // Header loginBtn click also triggers sign in
+    loginBtn?.addEventListener('click', signInWithGoogle);
 
-    // Game init
+    // ---------- Game init ----------
     function init() {
       buildBoard();
       state.order = [...Array(PIECES.length).keys()];
       state.current = [...state.order];
+      state.correctPieces = [];
+      render();
       attachListeners();
       setupRealtimeLeaderboardListener();
-      render();
       renderLeaderboard();
     }
 
@@ -252,7 +281,9 @@
         if (!state.playing) startGame();
         else shuffleTiles();
       });
-      leaderboardBtn.addEventListener('click', () => document.querySelector('.leaderboard').scrollIntoView({behavior:'smooth'}));
+      leaderboardBtn.addEventListener('click', () => {
+        document.querySelector('.leaderboard').scrollIntoView({behavior:'smooth'});
+      });
       saveScoreBtn.addEventListener('click', attemptSaveScore);
       cancelSaveBtn.addEventListener('click', hideSaveModal);
     }
@@ -260,8 +291,12 @@
     function buildBoard() {
       gameBoard.innerHTML = '';
       for (let i = 0; i < PIECES.length; i++) {
-        const tile = document.createElement('div'); tile.className = 'tile'; tile.dataset.index = i;
-        const img = document.createElement('img'); img.alt = `Puzzle piece ${i+1}`; img.draggable = false;
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        tile.dataset.index = i;
+        const img = document.createElement('img');
+        img.alt = `Puzzle piece ${i+1}`;
+        img.draggable = false;
         tile.appendChild(img);
         tile.addEventListener('click', () => handleTileClick(i));
         gameBoard.appendChild(tile);
@@ -271,7 +306,8 @@
     function render() {
       const tiles = gameBoard.querySelectorAll('.tile');
       tiles.forEach((tile, index) => {
-        const img = tile.querySelector('img'); const pieceIndex = state.current[index];
+        const img = tile.querySelector('img');
+        const pieceIndex = state.current[index];
         img.src = PIECES[pieceIndex];
         tile.classList.remove('selected');
         if (state.current[index] === state.order[index]) {
@@ -279,7 +315,8 @@
           if (!state.correctPieces.includes(index)) state.correctPieces.push(index);
         } else {
           tile.classList.remove('correct');
-          const idx = state.correctPieces.indexOf(index); if (idx !== -1) state.correctPieces.splice(idx,1);
+          const idx = state.correctPieces.indexOf(index);
+          if (idx !== -1) state.correctPieces.splice(idx, 1);
         }
       });
       movesEl.textContent = state.moves;
@@ -289,8 +326,16 @@
     function handleTileClick(index) {
       if (!state.playing) return;
       const tile = gameBoard.querySelector(`.tile[data-index="${index}"]`);
-      if (state.selected === null) { state.selected = index; tile.classList.add('selected'); return; }
-      if (state.selected === index) { state.selected = null; tile.classList.remove('selected'); return; }
+      if (state.selected === null) {
+        state.selected = index;
+        tile.classList.add('selected');
+        return;
+      }
+      if (state.selected === index) {
+        state.selected = null;
+        tile.classList.remove('selected');
+        return;
+      }
       swapTiles(state.selected, index);
       const prev = gameBoard.querySelector(`.tile[data-index="${state.selected}"]`);
       if (prev) prev.classList.remove('selected');
@@ -300,16 +345,31 @@
       if (isSolved()) endGame();
     }
 
-    function swapTiles(i1,i2){ [state.current[i1], state.current[i2]] = [state.current[i2], state.current[i1]]; render(); }
-
-    function isSolved(){ for (let i=0;i<state.current.length;i++){ if (state.current[i] !== state.order[i]) return false; } return true; }
-
-    function startGame(){
-      state.playing = true; state.moves = 0; state.score = 0; state.startTime = Date.now(); state.correctPieces = [];
-      clearInterval(state.timerInterval); state.timerInterval = setInterval(updateTimer,1000); shuffleTiles(); render();
+    function swapTiles(i1, i2) {
+      [state.current[i1], state.current[i2]] = [state.current[i2], state.current[i1]];
+      render();
     }
 
-    function shuffleTiles(){
+    function isSolved() {
+      for (let i = 0; i < state.current.length; i++) {
+        if (state.current[i] !== state.order[i]) return false;
+      }
+      return true;
+    }
+
+    function startGame() {
+      state.playing = true;
+      state.moves = 0;
+      state.score = 0;
+      state.startTime = Date.now();
+      state.correctPieces = [];
+      clearInterval(state.timerInterval);
+      state.timerInterval = setInterval(updateTimer, 1000);
+      shuffleTiles();
+      render();
+    }
+
+    function shuffleTiles() {
       do {
         for (let i = state.current.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
@@ -319,83 +379,98 @@
       render();
     }
 
-    function updateTimer(){
+    function updateTimer() {
       const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
-      const m = Math.floor(elapsed/60); const s = elapsed % 60;
+      const m = Math.floor(elapsed / 60);
+      const s = elapsed % 60;
       timerEl.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }
 
-    function updateScore(){
+    function updateScore() {
       const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
-      const timeBonus = Math.max(0,300 - elapsed) * 10;
+      const timeBonus = Math.max(0, 300 - elapsed) * 10;
       const movePenalty = state.moves * 5;
       const comboBonus = state.correctPieces.length * 5;
       state.score = Math.max(0, 1000 + timeBonus - movePenalty + comboBonus);
       scoreEl.textContent = state.score;
     }
 
-    function endGame(){
-      state.playing = false; clearInterval(state.timerInterval); updateScore(); createConfetti(); setTimeout(showSaveModal,1200);
+    function endGame() {
+      state.playing = false;
+      clearInterval(state.timerInterval);
+      updateScore();
+      createConfetti();
+      setTimeout(showSaveModal, 900);
     }
 
-    function createConfetti(){
+    function createConfetti() {
       const colors = ['#7b8cff','#4f5bff','#c7d2ff','#4ade80','#fbbf24'];
       for (let i=0;i<40;i++){
-        const c = document.createElement('div'); c.className='confetti';
-        c.style.left = Math.random()*100 + 'vw'; c.style.background = colors[Math.floor(Math.random()*colors.length)];
-        c.style.width = Math.random()*10 + 5 + 'px'; c.style.height = Math.random()*10 + 5 + 'px';
-        c.style.animationDelay = Math.random()*2 + 's'; document.body.appendChild(c);
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.background = colors[Math.floor(Math.random()*colors.length)];
+        c.style.width = Math.random()*10 + 5 + 'px';
+        c.style.height = Math.random()*10 + 5 + 'px';
+        c.style.animationDelay = Math.random()*2 + 's';
+        document.body.appendChild(c);
         setTimeout(()=>c.remove(),5000);
       }
     }
 
-    function showSaveModal(){ saveModal.style.display = 'flex'; playerNameInput.focus(); }
-    function hideSaveModal(){ saveModal.style.display = 'none'; }
+    function showSaveModal(){ saveModal.style.display = 'flex'; saveModal.setAttribute('aria-hidden','false'); playerNameInput.focus(); }
+    function hideSaveModal(){ saveModal.style.display = 'none'; saveModal.setAttribute('aria-hidden','true'); }
 
-    // Realtime leaderboard listener
-    function setupRealtimeLeaderboardListener(){
-      onValue(leaderboardRef, () => { renderLeaderboard(); });
+    // ---------- Realtime leaderboard ----------
+    function setupRealtimeLeaderboardListener() {
+      // re-render leaderboard when DB changes
+      onValue(leaderboardRef, (snapshot) => {
+        renderLeaderboard();
+      }, (err) => { console.error('Leaderboard listener error', err); });
     }
 
-    // Load leaderboard (snapshot once)
-    function loadLeaderboard(callback){
+    function loadLeaderboard(callback) {
       get(leaderboardRef)
-        .then(snapshot => {
+        .then((snapshot) => {
           if (!snapshot.exists()) return callback([]);
-          const obj = snapshot.val();
-          const arr = Object.keys(obj).map(k => ({ id:k, ...obj[k] }));
-          arr.sort((a,b)=> (b.score||0) - (a.score||0));
+          const data = snapshot.val();
+          const arr = Object.keys(data).map(k => ({ id: k, ...data[k] }));
+          arr.sort((a,b)=> (b.score || 0) - (a.score || 0));
           callback(arr);
         })
-        .catch(err => { console.error('loadLB',err); callback([]); });
+        .catch((err) => { console.error('Load leaderboard err', err); callback([]); });
     }
 
-    function renderLeaderboard(){
-      loadLeaderboard(list => {
+    function renderLeaderboard() {
+      loadLeaderboard((list) => {
         leaderList.innerHTML = '';
-        if (!list || list.length === 0){
-          const item = document.createElement('li'); item.className='leader-item';
+        if (!list || list.length === 0) {
+          const item = document.createElement('li');
+          item.className = 'leader-item';
           item.innerHTML = '<div style="text-align:center;width:100%;color:var(--muted)">No scores yet</div>';
-          leaderList.appendChild(item); return;
+          leaderList.appendChild(item);
+          return;
         }
-        const top = list.slice(0,20);
+        const top = list.slice(0, 20);
         top.forEach((entry, idx) => {
-          const li = document.createElement('li'); li.className='leader-item';
-          const minutes = Math.floor((entry.time||0)/60); const seconds = (entry.time||0) % 60;
+          const li = document.createElement('li');
+          li.className = 'leader-item';
+          const minutes = Math.floor((entry.time||0) / 60);
+          const seconds = (entry.time||0) % 60;
           const timeStr = `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
           const dateStr = entry.date ? new Date(entry.date).toLocaleDateString() : '';
           li.innerHTML = `
             <div style="display:flex;align-items:center;gap:8px">
               <div class="leader-rank">${idx+1}</div>
-              <div style="min-width:120px">
+              <div style="min-width:110px">
                 <div style="font-weight:700;color:var(--highlight)">${escapeHtml(entry.name||'Player')}</div>
                 <div style="font-size:11px;color:var(--muted)">${entry.uid ? 'UID:' + String(entry.uid).slice(0,6) : ''}</div>
               </div>
             </div>
             <div style="text-align:right">
               <div class="leader-score">${entry.score||0}</div>
-              <div style="font-size:11px;color:var(--muted)">${(entry.moves||0)} moves • ${timeStr}</div>
-              <div style="font-size:11px;color:var(--muted)">${dateStr}</div>
+              <div class="leader-details" style="font-size:11px;color:var(--muted)">${(entry.moves||0)} moves • ${timeStr}</div>
+              <div class="leader-details" style="font-size:11px;color:var(--muted)">${dateStr}</div>
             </div>
           `;
           leaderList.appendChild(li);
@@ -403,38 +478,93 @@
       });
     }
 
-    // Save score (requires user auth)
-    async function attemptSaveScore(){
+    // ---------- Save score (requires auth) ----------
+    async function attemptSaveScore() {
       const user = auth.currentUser;
       if (!user) {
-        alert('আপনাকে স্কোর সেভ করতে প্রথমে সাইন-ইন করতে হবে।');
-        try { await signInWithPopup(auth, provider); } catch(e){ console.error('signin',e); return; }
+        try {
+          await signInWithPopup(auth, provider);
+          // after sign-in, proceed to save
+          saveScore();
+        } catch (err) {
+          console.warn('Popup failed, trying redirect', err);
+          try {
+            await signInWithRedirect(auth, provider);
+          } catch (err2) {
+            console.error('Redirect also failed', err2);
+            alert('Sign-in failed. See console.');
+          }
+        }
+        return;
       }
       saveScore();
     }
 
-    async function saveScore(){
+    function saveScore() {
       const user = auth.currentUser;
-      if (!user) { alert('Not signed in.'); return; }
+      if (!user) {
+        alert('Sign in required to save score.');
+        return;
+      }
       const name = (playerNameInput.value || user.displayName || user.email || 'Player').trim().slice(0,20);
-      const elapsed = Math.floor((Date.now() - state.startTime)/1000);
-      const scoreData = { name, uid: user.uid, score: state.score, moves: state.moves, time: elapsed, date: new Date().toISOString() };
-      try {
-        await push(leaderboardRef, scoreData);
-        hideSaveModal();
-        renderLeaderboard();
-        alert(`Score saved! ${escapeHtml(name)} - ${state.score} points`);
-      } catch (err) {
-        console.error('saveScore', err);
-        alert('Error saving score. Check DB rules and console.');
+      const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+      const scoreData = {
+        name: name,
+        uid: user.uid,
+        score: state.score,
+        moves: state.moves,
+        time: elapsed,
+        date: new Date().toISOString()
+      };
+      push(leaderboardRef, scoreData)
+        .then(()=> {
+          hideSaveModal();
+          renderLeaderboard();
+          alert(`Score saved! ${escapeHtml(name)} - ${state.score} points`);
+        })
+        .catch((err)=> {
+          console.error('Save score err', err);
+          alert('Error saving score. Check console and DB rules.');
+        });
+    }
+
+    // ---------- Utility ----------
+    function escapeHtml(text) {
+      const d = document.createElement('div');
+      d.textContent = text;
+      return d.innerHTML;
+    }
+
+    // ---------- Start ----------
+    window.addEventListener('DOMContentLoaded', init);
+
+    // ---------- Helpful note for DB rules (copy into Firebase Console -> Realtime Database -> Rules) ----------
+    /*
+    Recommended minimal rules for leaderboard:
+
+    {
+      "rules": {
+        "puzzleLeaderboard": {
+          ".read": true,
+          ".write": "auth != null"   // only authenticated users can write
+        }
       }
     }
 
-    // Utility
-    function escapeHtml(text){ const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+    If you want even stricter (each entry must include uid === auth.uid):
+    {
+      "rules": {
+        "puzzleLeaderboard": {
+          "$pushId": {
+            ".read": true,
+            ".write": "auth != null && newData.child('uid').val() === auth.uid"
+          }
+        }
+      }
+    }
 
-    // Start
-    window.addEventListener('DOMContentLoaded', init);
+    Note: If you keep global rules like ".read": "auth != null", then any signed-in user can read/write whole DB — tailor to your security needs.
+    */
   </script>
 </body>
 </html>
