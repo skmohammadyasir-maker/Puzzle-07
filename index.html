@@ -2,84 +2,89 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Membership 007 — Puzzle Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Puzzle Game — Membership 007</title>
 
 <style>
     body {
-        margin: 0;
-        background: #0d0d0d;
-        color: white;
         font-family: Arial, sans-serif;
+        background: #0d0d0d;
+        color: #fff;
         text-align: center;
+        margin: 0;
+        padding: 0;
     }
-
-    #login-box {
-        margin-top: 50px;
+    #login-area, #game-area {
+        margin-top: 20px;
     }
-
-    .btn-google {
-        background: #ffffff;
-        color: #000;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-size: 18px;
-        cursor: pointer;
-        border: none;
-    }
-
-    #gameBox { display: none; padding: 20px; }
-    #gameBoard {
+    #puzzle {
         width: 360px;
         margin: auto;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 5px;
     }
-
     .piece {
         width: 85px;
         height: 85px;
-        border-radius: 5px;
+        background-size: cover;
+        border-radius: 8px;
         cursor: pointer;
+        border: 2px solid #222;
     }
-
     #leaderboard {
-        margin-top: 20px;
-        background: #1a1a1a;
-        padding: 15px;
+        width: 90%;
+        margin: 20px auto;
+        padding: 10px;
+        background: #111;
         border-radius: 10px;
+    }
+    button {
+        background: #ff5722;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
     }
 </style>
 </head>
 
 <body>
 
-<h1>Membership 007 — Puzzle Game</h1>
+<h1>🧩 Puzzle Game — Membership 007</h1>
 
-<!-- LOGIN SECTION -->
-<div id="login-box">
-    <button id="googleLogin" class="btn-google">Sign in with Google</button>
+<!-- LOGIN AREA -->
+<div id="login-area">
+    <button id="googleLogin">Google দিয়ে লগইন</button>
 </div>
 
-<!-- GAME SECTION -->
-<div id="gameBox">
-    <h2>Welcome, <span id="userName"></span></h2>
-    <p>⏱ Time: <span id="timer">0</span> sec | 🔁 Moves: <span id="moves">0</span></p>
+<!-- GAME AREA -->
+<div id="game-area" style="display:none;">
+    <h2 id="userName"></h2>
+    <h3>আপনার স্কোর: <span id="score">0</span></h3>
 
-    <div id="gameBoard"></div>
-
-    <h3>🏆 Leaderboard</h3>
-    <div id="leaderboard"></div>
+    <div id="puzzle"></div>
 </div>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
+<!-- LEADERBOARD -->
+<div id="leaderboard">
+    <h2>🏆 Leaderboard</h2>
+    <div id="boardList"></div>
+</div>
 
-<script>
-// ---------------- FIREBASE CONFIG ----------------
+
+<!-- Firebase Scripts -->
+<script type="module">
+
+/* ---------------------------
+   🔥 Firebase Configuration
+---------------------------- */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyBFbfVCHzWS9ZfsI_R7G5L95lIdsaAjqhM",
   authDomain: "membership-007.firebaseapp.com",
@@ -91,33 +96,31 @@ const firebaseConfig = {
   measurementId: "G-PHW10NPS0B"
 };
 
-const app = firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-
-// ---------------- GOOGLE LOGIN SYSTEM ----------------
-
-document.getElementById("googleLogin").addEventListener("click", () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
+/* ------------------------------
+   🔐 Google Login System
+------------------------------- */
+document.getElementById("googleLogin").onclick = function () {
+    signInWithPopup(auth, provider)
         .then(result => {
             const user = result.user;
-
-            // Save user in DB
-            db.ref("users/" + user.uid).update({
-                name: user.displayName,
-                email: user.email,
-                photo: user.photoURL
-            });
-
-            startGame(user);
+            document.getElementById("login-area").style.display = "none";
+            document.getElementById("game-area").style.display = "block";
+            document.getElementById("userName").innerText = "হ্যালো, " + user.displayName;
+            loadGame();
         })
-        .catch(err => alert(err.message));
-});
+        .catch(error => {
+            alert("Login Failed: " + error.message);
+        });
+};
 
-
-// ---------------- GAME PUZZLE ----------------
+/* ------------------------------
+   🎮 Puzzle Game Engine
+------------------------------- */
 
 const PIECES = [
     "https://res.cloudinary.com/dajuuabos/image/upload/v1763906618/1763905601546_1_s0wrla.png",
@@ -134,74 +137,77 @@ const PIECES = [
     "https://res.cloudinary.com/dajuuabos/image/upload/v1763906616/1763905601546_12_jmlthv.png"
 ];
 
-let time = 0, moves = 0, timerInterval = null;
+let score = 0;
+let firstPick = null;
 
-function startGame(user) {
-    document.getElementById("login-box").style.display = "none";
-    document.getElementById("gameBox").style.display = "block";
-    document.getElementById("userName").textContent = user.displayName;
-
-    const board = document.getElementById("gameBoard");
-    board.innerHTML = "";
+function loadGame() {
+    const puzzle = document.getElementById("puzzle");
+    puzzle.innerHTML = "";
 
     let shuffled = [...PIECES].sort(() => Math.random() - 0.5);
 
-    shuffled.forEach(src => {
-        const img = document.createElement("img");
-        img.src = src;
-        img.className = "piece";
-        img.onclick = () => handleMove();
-        board.appendChild(img);
+    shuffled.forEach((img, index) => {
+        let div = document.createElement("div");
+        div.className = "piece";
+        div.style.backgroundImage = `url('${img}')`;
+        div.dataset.index = index;
+
+        div.onclick = () => selectPiece(div);
+
+        puzzle.appendChild(div);
     });
-
-    time = 0;
-    moves = 0;
-    document.getElementById("timer").textContent = time;
-    document.getElementById("moves").textContent = moves;
-
-    timerInterval = setInterval(() => {
-        time++;
-        document.getElementById("timer").textContent = time;
-    }, 1000);
-
-    loadLeaderboard();
 }
 
-function handleMove() {
-    moves++;
-    document.getElementById("moves").textContent = moves;
+function selectPiece(div) {
+    if (!firstPick) {
+        firstPick = div;
+        div.style.border = "3px solid yellow";
+    } else {
+        // Swap pieces
+        const temp = div.style.backgroundImage;
+        div.style.backgroundImage = firstPick.style.backgroundImage;
+        firstPick.style.backgroundImage = temp;
 
-    if (moves > 15) finishGame(); // Simple win condition (demo)
+        firstPick.style.border = "2px solid #222";
+        firstPick = null;
+
+        score += 10;
+        document.getElementById("score").innerText = score;
+
+        saveScore();
+    }
 }
 
-function finishGame() {
-    clearInterval(timerInterval);
-
+/* ------------------------------
+   💾 Save Score (Realtime DB)
+------------------------------- */
+function saveScore() {
     const user = auth.currentUser;
-    db.ref("scores/" + user.uid).set({
+    if (!user) return;
+
+    set(ref(db, "puzzleLeaderboard/" + user.uid), {
         name: user.displayName,
-        time: time,
-        moves: moves,
-        date: Date.now()
-    });
-
-    alert("🎉 Puzzle Completed!");
-    loadLeaderboard();
-}
-
-
-// ---------------- LEADERBOARD ----------------
-
-function loadLeaderboard() {
-    const box = document.getElementById("leaderboard");
-    db.ref("scores").orderByChild("time").limitToFirst(10).on("value", snap => {
-        box.innerHTML = "";
-        snap.forEach(x => {
-            const s = x.val();
-            box.innerHTML += `<p>${s.name} — ⏱ ${s.time}s | 🔁 ${s.moves}</p>`;
-        });
+        score: score
     });
 }
+
+/* ------------------------------
+   🏆 Live Leaderboard
+------------------------------- */
+const leaderboardRef = ref(db, "puzzleLeaderboard");
+
+onValue(leaderboardRef, snap => {
+    const data = snap.val() || {};
+    const sorted = Object.values(data).sort((a,b)=> b.score - a.score);
+
+    let html = "";
+    sorted.forEach((u,i)=>{
+        html += `<p>${i+1}. ${u.name} — ${u.score}</p>`;
+    });
+
+    document.getElementById("boardList").innerHTML = html;
+});
+
 </script>
 
 </body>
