@@ -1,534 +1,208 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>BlackForce 007 — 12-Piece Photo Puzzle</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <style>
-    :root{--bg:#07070b;--panel:linear-gradient(180deg,#0f1116,#0b0c10);--card:#0d1116;--accent:#7b8cff;--muted:#9aa0b4;--glass:rgba(255,255,255,0.03);--highlight:#c7d2ff}
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{min-height:100vh;background:radial-gradient(circle at 10% 10%,#0b0b12 0%,#050507 50%);color:var(--highlight);font-family:Segoe UI,Roboto,Arial;display:flex;align-items:flex-start;justify-content:center;padding:12px}
-    .app{width:100%;max-width:920px;display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start}
-    header{grid-column:1/-1;background:var(--panel);padding:14px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 8px 30px rgba(8,8,12,0.6)}
-    .brand{display:flex;gap:12px;align-items:center}
-    .brand-logo{width:64px;height:64px;background:linear-gradient(145deg,var(--accent),#4f5bff);border-radius:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(123,140,255,0.4)}
-    .brand-logo i{font-size:32px;color:#fff}
-    .brand h1{font-size:18px;margin:0;letter-spacing:1px;text-transform:uppercase;background:linear-gradient(90deg,#fff,#aaa);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .subtitle{color:var(--muted);font-size:13px}
-    .user-area{display:flex;gap:8px;align-items:center}
-    .avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;overflow:hidden}
-    .avatar img{width:100%;height:100%;object-fit:cover}
-    .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700;background:linear-gradient(180deg,#232338,#111219);color:var(--highlight);display:inline-flex;gap:8px;align-items:center}
-    .btn.primary{background:linear-gradient(180deg,#4f5bff,#3540c8)}
-    .panel{background:var(--card);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 10px 30px rgba(0,0,0,0.6)}
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
-    .stat{background:var(--glass);padding:12px;border-radius:8px;text-align:center;border:1px solid rgba(255,255,255,0.02)}
-    .stat .val{font-size:18px;font-weight:700;color:var(--highlight)}
-    .stat .lbl{font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:.6px;text-transform:uppercase}
-    .game-board{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px;border-radius:12px;aspect-ratio:3/4;border:1px solid rgba(255,255,255,0.03);background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent)}
-    .tile{background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,0.04);transition:transform .12s,box-shadow .12s}
-    .tile img{width:100%;height:100%;object-fit:cover;display:block}
-    .tile.selected{box-shadow:0 10px 30px rgba(123,140,255,0.18);outline:3px solid rgba(123,140,255,0.08);transform:translateY(-6px)}
-    .tile.correct{box-shadow:0 10px 30px rgba(74,222,128,0.18);outline:3px solid rgba(74,222,128,0.08)}
-    .controls{display:flex;gap:8px;margin-top:16px}
-    .leaderboard{background:var(--card);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);max-height:72vh;overflow:auto}
-    .leaderboard h2{margin:0 0 12px 0;color:var(--highlight);font-size:16px;text-transform:uppercase;text-align:center}
-    .leader-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
-    .leader-item{display:flex;justify-content:space-between;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.01)}
-    .leader-rank{font-weight:800;color:var(--accent);margin-right:8px;width:24px}
-    .leader-score{font-weight:700;color:var(--highlight)}
-    footer{grid-column:1/-1;text-align:center;color:var(--muted);margin-top:12px;font-size:12px}
-    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;padding:20px;z-index:1000}
-    .modal-content{background:var(--card);padding:20px;border-radius:12px;width:100%;max-width:420px;border:1px solid rgba(255,255,255,0.03)}
-    .modal-input{width:100%;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:rgba(255,255,255,0.05);color:var(--highlight);margin-bottom:12px}
-    .confetti{position:fixed;width:10px;height:10px;opacity:0;animation:confetti 3s ease-in-out forwards;z-index:999}
-    @keyframes confetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(360deg);opacity:0}}
-    @media(max-width:880px){.app{grid-template-columns:1fr;}.leaderboard{order:2}}
-  </style>
-</head>
-<body>
-  <div class="app">
-    <header>
-      <div class="brand">
-        <div class="brand-logo"><i class="fas fa-puzzle-piece"></i></div>
-        <div>
-          <h1>BLACK FORCE 007</h1>
-          <div class="subtitle">12-Piece Photo Puzzle • Mobile Friendly</div>
-        </div>
-      </div>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Membership 007 — Puzzle Game</title>
 
-      <div class="user-area" id="userArea">
-        <!-- Will be filled by JS -->
-        <button class="btn primary" id="loginBtn"><i class="fab fa-google"></i> Sign in with Google</button>
-      </div>
-    </header>
-
-    <!-- Main Game Panel -->
-    <div class="panel">
-      <div class="stats">
-        <div class="stat">
-          <div class="val" id="timer">00:00</div>
-          <div class="lbl">Time</div>
-        </div>
-        <div class="stat">
-          <div class="val" id="moves">0</div>
-          <div class="lbl">Moves</div>
-        </div>
-        <div class="stat">
-          <div class="val" id="score">0</div>
-          <div class="lbl">Score</div>
-        </div>
-      </div>
-
-      <div class="board-wrap">
-        <div class="game-board" id="gameBoard" aria-live="polite"></div>
-      </div>
-
-      <div class="features" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-        <div class="feature" style="background:rgba(255,255,255,0.05);padding:8px 12px;border-radius:20px;font-size:12px;color:var(--muted)">অদলবদল করতে দুটি টাইল ট্যাপ করুন</div>
-        <div class="feature" style="background:rgba(255,255,255,0.05);padding:8px 12px;border-radius:20px;font-size:12px;color:var(--muted)">Correct pieces glow green</div>
-        <div class="feature" style="background:rgba(255,255,255,0.05);padding:8px 12px;border-radius:20px;font-size:12px;color:var(--muted)">Score based on time & moves</div>
-      </div>
-
-      <div class="controls">
-        <button class="btn primary" id="startBtn"><i class="fas fa-play"></i> Start Game</button>
-        <button class="btn" id="shuffleBtn"><i class="fas fa-random"></i> Shuffle</button>
-        <button class="btn" id="leaderboardBtn"><i class="fas fa-trophy"></i> Scores</button>
-      </div>
-    </div>
-
-    <!-- Right column: Leaderboard -->
-    <aside class="leaderboard" id="leaderboardPanel">
-      <h2>Top Scores</h2>
-      <ul class="leader-list" id="leaderList"></ul>
-    </aside>
-
-    <footer>Built for Black Force 007 — Ready to Deploy</footer>
-  </div>
-
-  <!-- Save Score Modal -->
-  <div class="modal" id="saveModal" role="dialog" aria-modal="true">
-    <div class="modal-content">
-      <h3 style="color:var(--highlight);text-align:center;margin-bottom:12px">Save Your Score</h3>
-      <input id="playerName" class="modal-input" placeholder="Enter your name (max 20)" maxlength="20" />
-      <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button class="btn" id="cancelSaveBtn">Cancel</button>
-        <button class="btn primary" id="saveScoreBtn"><i class="fas fa-save"></i> Save Score</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Firebase + Game Script (module) -->
-  <script type="module">
-    // ---------------------------
-    // Firebase SDK imports (modular)
-    // ---------------------------
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import {
-      getDatabase, ref, push, onValue, get
-    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-    import {
-      getAuth,
-      GoogleAuthProvider,
-      signInWithPopup,
-      signOut,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-    // ---------------------------
-    // YOUR FIREBASE CONFIG (you gave this)
-    // ---------------------------
-    const firebaseConfig = {
-      apiKey: "AIzaSyBFbfVCHzWS9ZfsI_R7G5L95lIdsaAjqhM",
-      authDomain: "membership-007.firebaseapp.com",
-      databaseURL: "https://membership-007-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "membership-007",
-      storageBucket: "membership-007.firebasestorage.app",
-      messagingSenderId: "260769258496",
-      appId: "1:260769258496:web:948c596e84f14c0c7f4ce5",
-      measurementId: "G-PHW10NPS0B"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const auth = getAuth(app);
-
-    // Leaderboard location in DB
-    const leaderboardRef = ref(db, 'puzzleLeaderboard');
-
-    // ---------------------------
-    // Game images (12 pieces)
-    // ---------------------------
-    const PIECES = [
-      "https://res.cloudinary.com/dajuuabos/image/upload/v1763906618/1763905601546_1_s0wrla.png",
-      "https://res.cloudinary.com/dajuuabos/image/upload/v1763906618/1763905601546_6_qbjlgx.png",
-      "https://res.cloudinary.com/dajuuabos/image/upload/v1763906618/1763905601546_2_uivowl.png",
-      "https://res.cloudinary.com/dajuuabos/image/upload/v1763906618/1763905601546_7_zimifj.png",
-      "https://res.cloudinary.com/dajuuabos/image/upload/v1763906617/1763905601546_8_brkpjq.png",
-      "https://res.cloudinary.com/dajuuabos/image/upload/v1763906617/1763905601546_3_ytc8om.png",
-      "https://res.cloudinary.com/dajuuabos/image/upload/v1763906617/1763905601546_9_lhw92s.png",
-      "https://res.cloudinary.com/dajuuabos/image/upload/v1763906617/1763905601546_10_ebby9p.png",
-      "https://res.cloudinary.com/dajuuabos/image/upload/v1763906617/1763905601546_4_haza6x.png",
-      "https://res.cloudinary.com/dajuuabos/image/upload/v1763906616/1763905601546_5_smvwh5.png",
-      "https://res.cloudinary.com/dajuuabos/image/upload/v1763906616/1763905601546_11_zwzrvu.png",
-      "https://res.cloudinary.com/dajuuabos/image/upload/v1763906616/1763905601546_12_jmlthv.png"
-    ];
-
-    // ---------------------------
-    // DOM elements
-    // ---------------------------
-    const gameBoard = document.getElementById('gameBoard');
-    const timerEl = document.getElementById('timer');
-    const movesEl = document.getElementById('moves');
-    const scoreEl = document.getElementById('score');
-    const startBtn = document.getElementById('startBtn');
-    const shuffleBtn = document.getElementById('shuffleBtn');
-    const leaderboardBtn = document.getElementById('leaderboardBtn');
-    const leaderList = document.getElementById('leaderList');
-    const saveModal = document.getElementById('saveModal');
-    const saveScoreBtn = document.getElementById('saveScoreBtn');
-    const cancelSaveBtn = document.getElementById('cancelSaveBtn');
-    const playerNameInput = document.getElementById('playerName');
-    const loginBtn = document.getElementById('loginBtn');
-    const userArea = document.getElementById('userArea');
-
-    // ---------------------------
-    // Game state
-    // ---------------------------
-    let state = {
-      order: [],
-      current: [],
-      selected: null,
-      moves: 0,
-      startTime: 0,
-      timerInterval: null,
-      score: 0,
-      playing: false,
-      correctPieces: []
-    };
-
-    // ---------------------------
-    // Auth helpers
-    // ---------------------------
-    const provider = new GoogleAuthProvider();
-
-    function renderUser(user) {
-      userArea.innerHTML = '';
-      if (user) {
-        const avatar = document.createElement('div');
-        avatar.className = 'avatar';
-        const img = document.createElement('img');
-        img.src = user.photoURL || 'https://www.gravatar.com/avatar/?d=mp';
-        avatar.appendChild(img);
-
-        const name = document.createElement('div');
-        name.style.color = 'var(--muted)';
-        name.style.fontSize = '14px';
-        name.style.marginLeft = '8px';
-        name.textContent = (user.displayName || user.email).split(' ')[0];
-
-        const signOutBtn = document.createElement('button');
-        signOutBtn.className = 'btn';
-        signOutBtn.textContent = 'Sign out';
-        signOutBtn.addEventListener('click', () => signOut(auth));
-
-        userArea.appendChild(avatar);
-        userArea.appendChild(name);
-        userArea.appendChild(signOutBtn);
-      } else {
-        const signInBtn = document.createElement('button');
-        signInBtn.className = 'btn primary';
-        signInBtn.innerHTML = '<i class="fab fa-google"></i> Sign in with Google';
-        signInBtn.addEventListener('click', () => signInWithPopup(auth, provider));
-        userArea.appendChild(signInBtn);
-      }
+<style>
+    body {
+        margin: 0;
+        background: #0d0d0d;
+        color: white;
+        font-family: Arial, sans-serif;
+        text-align: center;
     }
 
-    onAuthStateChanged(auth, (user) => {
-      renderUser(user);
+    #login-box {
+        margin-top: 50px;
+    }
+
+    .btn-google {
+        background: #ffffff;
+        color: #000;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 18px;
+        cursor: pointer;
+        border: none;
+    }
+
+    #gameBox { display: none; padding: 20px; }
+    #gameBoard {
+        width: 360px;
+        margin: auto;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 5px;
+    }
+
+    .piece {
+        width: 85px;
+        height: 85px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    #leaderboard {
+        margin-top: 20px;
+        background: #1a1a1a;
+        padding: 15px;
+        border-radius: 10px;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>Membership 007 — Puzzle Game</h1>
+
+<!-- LOGIN SECTION -->
+<div id="login-box">
+    <button id="googleLogin" class="btn-google">Sign in with Google</button>
+</div>
+
+<!-- GAME SECTION -->
+<div id="gameBox">
+    <h2>Welcome, <span id="userName"></span></h2>
+    <p>⏱ Time: <span id="timer">0</span> sec | 🔁 Moves: <span id="moves">0</span></p>
+
+    <div id="gameBoard"></div>
+
+    <h3>🏆 Leaderboard</h3>
+    <div id="leaderboard"></div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
+
+<script>
+// ---------------- FIREBASE CONFIG ----------------
+const firebaseConfig = {
+  apiKey: "AIzaSyBFbfVCHzWS9ZfsI_R7G5L95lIdsaAjqhM",
+  authDomain: "membership-007.firebaseapp.com",
+  databaseURL: "https://membership-007-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "membership-007",
+  storageBucket: "membership-007.firebasestorage.app",
+  messagingSenderId: "260769258496",
+  appId: "1:260769258496:web:948c596e84f14c0c7f4ce5",
+  measurementId: "G-PHW10NPS0B"
+};
+
+const app = firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+
+// ---------------- GOOGLE LOGIN SYSTEM ----------------
+
+document.getElementById("googleLogin").addEventListener("click", () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+        .then(result => {
+            const user = result.user;
+
+            // Save user in DB
+            db.ref("users/" + user.uid).update({
+                name: user.displayName,
+                email: user.email,
+                photo: user.photoURL
+            });
+
+            startGame(user);
+        })
+        .catch(err => alert(err.message));
+});
+
+
+// ---------------- GAME PUZZLE ----------------
+
+const PIECES = [
+    "https://res.cloudinary.com/dajuuabos/image/upload/v1763906618/1763905601546_1_s0wrla.png",
+    "https://res.cloudinary.com/dajuuabos/image/upload/v1763906618/1763905601546_6_qbjlgx.png",
+    "https://res.cloudinary.com/dajuuabos/image/upload/v1763906618/1763905601546_2_uivowl.png",
+    "https://res.cloudinary.com/dajuuabos/image/upload/v1763906618/1763905601546_7_zimifj.png",
+    "https://res.cloudinary.com/dajuuabos/image/upload/v1763906617/1763905601546_8_brkpjq.png",
+    "https://res.cloudinary.com/dajuuabos/image/upload/v1763906617/1763905601546_3_ytc8om.png",
+    "https://res.cloudinary.com/dajuuabos/image/upload/v1763906617/1763905601546_9_lhw92s.png",
+    "https://res.cloudinary.com/dajuuabos/image/upload/v1763906617/1763905601546_10_ebby9p.png",
+    "https://res.cloudinary.com/dajuuabos/image/upload/v1763906617/1763905601546_4_haza6x.png",
+    "https://res.cloudinary.com/dajuuabos/image/upload/v1763906616/1763905601546_5_smvwh5.png",
+    "https://res.cloudinary.com/dajuuabos/image/upload/v1763906616/1763905601546_11_zwzrvu.png",
+    "https://res.cloudinary.com/dajuuabos/image/upload/v1763906616/1763905601546_12_jmlthv.png"
+];
+
+let time = 0, moves = 0, timerInterval = null;
+
+function startGame(user) {
+    document.getElementById("login-box").style.display = "none";
+    document.getElementById("gameBox").style.display = "block";
+    document.getElementById("userName").textContent = user.displayName;
+
+    const board = document.getElementById("gameBoard");
+    board.innerHTML = "";
+
+    let shuffled = [...PIECES].sort(() => Math.random() - 0.5);
+
+    shuffled.forEach(src => {
+        const img = document.createElement("img");
+        img.src = src;
+        img.className = "piece";
+        img.onclick = () => handleMove();
+        board.appendChild(img);
     });
 
-    // If initial login button (header) clicked — open popup
-    loginBtn?.addEventListener('click', () => signInWithPopup(auth, provider));
+    time = 0;
+    moves = 0;
+    document.getElementById("timer").textContent = time;
+    document.getElementById("moves").textContent = moves;
 
-    // ---------------------------
-    // Game functions
-    // ---------------------------
-    function init() {
-      buildBoard();
-      state.order = [...Array(PIECES.length).keys()];
-      state.current = [...state.order];
-      state.correctPieces = [];
-      render();
-      attachListeners();
-      setupRealtimeLeaderboardListener();
-      renderLeaderboard(); // initial render
-    }
+    timerInterval = setInterval(() => {
+        time++;
+        document.getElementById("timer").textContent = time;
+    }, 1000);
 
-    function attachListeners() {
-      startBtn.addEventListener('click', startGame);
-      shuffleBtn.addEventListener('click', () => {
-        if (!state.playing) startGame();
-        else shuffleTiles();
-      });
-      leaderboardBtn.addEventListener('click', () => {
-        document.querySelector('.leaderboard').scrollIntoView({behavior:'smooth'});
-      });
-      saveScoreBtn.addEventListener('click', attemptSaveScore);
-      cancelSaveBtn.addEventListener('click', hideSaveModal);
-    }
+    loadLeaderboard();
+}
 
-    function buildBoard() {
-      gameBoard.innerHTML = '';
-      for (let i = 0; i < PIECES.length; i++) {
-        const tile = document.createElement('div');
-        tile.className = 'tile';
-        tile.dataset.index = i;
-        const img = document.createElement('img');
-        img.alt = `Puzzle piece ${i+1}`;
-        img.draggable = false;
-        tile.appendChild(img);
-        tile.addEventListener('click', () => handleTileClick(i));
-        gameBoard.appendChild(tile);
-      }
-    }
+function handleMove() {
+    moves++;
+    document.getElementById("moves").textContent = moves;
 
-    function render() {
-      const tiles = gameBoard.querySelectorAll('.tile');
-      tiles.forEach((tile, index) => {
-        const img = tile.querySelector('img');
-        const pieceIndex = state.current[index];
-        img.src = PIECES[pieceIndex];
-        tile.classList.remove('selected');
-        if (state.current[index] === state.order[index]) {
-          tile.classList.add('correct');
-          if (!state.correctPieces.includes(index)) state.correctPieces.push(index);
-        } else {
-          tile.classList.remove('correct');
-          const idx = state.correctPieces.indexOf(index);
-          if (idx !== -1) state.correctPieces.splice(idx, 1);
-        }
-      });
-      movesEl.textContent = state.moves;
-      scoreEl.textContent = state.score;
-    }
+    if (moves > 15) finishGame(); // Simple win condition (demo)
+}
 
-    function handleTileClick(index) {
-      if (!state.playing) return;
-      const tile = gameBoard.querySelector(`.tile[data-index="${index}"]`);
-      if (state.selected === null) {
-        state.selected = index;
-        tile.classList.add('selected');
-        return;
-      }
-      if (state.selected === index) {
-        state.selected = null;
-        tile.classList.remove('selected');
-        return;
-      }
-      swapTiles(state.selected, index);
-      // deselect previous (if element still exists)
-      const prev = gameBoard.querySelector(`.tile[data-index="${state.selected}"]`);
-      if (prev) prev.classList.remove('selected');
-      state.selected = null;
-      state.moves++;
-      updateScore();
-      if (isSolved()) endGame();
-    }
+function finishGame() {
+    clearInterval(timerInterval);
 
-    function swapTiles(i1, i2) {
-      [state.current[i1], state.current[i2]] = [state.current[i2], state.current[i1]];
-      render();
-    }
+    const user = auth.currentUser;
+    db.ref("scores/" + user.uid).set({
+        name: user.displayName,
+        time: time,
+        moves: moves,
+        date: Date.now()
+    });
 
-    function isSolved() {
-      for (let i = 0; i < state.current.length; i++) {
-        if (state.current[i] !== state.order[i]) return false;
-      }
-      return true;
-    }
+    alert("🎉 Puzzle Completed!");
+    loadLeaderboard();
+}
 
-    function startGame() {
-      state.playing = true;
-      state.moves = 0;
-      state.score = 0;
-      state.startTime = Date.now();
-      state.correctPieces = [];
-      clearInterval(state.timerInterval);
-      state.timerInterval = setInterval(updateTimer, 1000);
-      shuffleTiles();
-      render();
-    }
 
-    function shuffleTiles() {
-      do {
-        for (let i = state.current.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [state.current[i], state.current[j]] = [state.current[j], state.current[i]];
-        }
-      } while (isSolved());
-      render();
-    }
+// ---------------- LEADERBOARD ----------------
 
-    function updateTimer() {
-      const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
-      const m = Math.floor(elapsed / 60);
-      const s = elapsed % 60;
-      timerEl.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    }
-
-    function updateScore() {
-      const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
-      const timeBonus = Math.max(0, 300 - elapsed) * 10;
-      const movePenalty = state.moves * 5;
-      const comboBonus = state.correctPieces.length * 5;
-      state.score = Math.max(0, 1000 + timeBonus - movePenalty + comboBonus);
-      scoreEl.textContent = state.score;
-    }
-
-    function endGame() {
-      state.playing = false;
-      clearInterval(state.timerInterval);
-      updateScore();
-      createConfetti();
-      setTimeout(showSaveModal, 1200);
-    }
-
-    function createConfetti() {
-      const colors = ['#7b8cff','#4f5bff','#c7d2ff','#4ade80','#fbbf24'];
-      for (let i=0;i<40;i++){
-        const c = document.createElement('div');
-        c.className = 'confetti';
-        c.style.left = Math.random() * 100 + 'vw';
-        c.style.background = colors[Math.floor(Math.random()*colors.length)];
-        c.style.width = Math.random()*10 + 5 + 'px';
-        c.style.height = Math.random()*10 + 5 + 'px';
-        c.style.animationDelay = Math.random()*2 + 's';
-        document.body.appendChild(c);
-        setTimeout(()=>c.remove(),5000);
-      }
-    }
-
-    function showSaveModal(){ saveModal.style.display = 'flex'; playerNameInput.focus(); }
-    function hideSaveModal(){ saveModal.style.display = 'none'; }
-
-    // ---------------------------
-    // Leaderboard (Realtime)
-    // ---------------------------
-    function setupRealtimeLeaderboardListener() {
-      onValue(leaderboardRef, (snapshot) => {
-        // Whenever DB updates, re-render leaderboard
-        renderLeaderboard(); // uses get() internally
-      });
-    }
-
-    function loadLeaderboard(callback) {
-      get(leaderboardRef)
-        .then((snapshot) => {
-          if (!snapshot.exists()) return callback([]);
-          const data = snapshot.val();
-          const arr = Object.keys(data).map(k => ({ id: k, ...data[k] }));
-          arr.sort((a,b)=> (b.score || 0) - (a.score || 0));
-          callback(arr);
-        })
-        .catch((err) => { console.error('Load leaderboard err', err); callback([]); });
-    }
-
-    function renderLeaderboard() {
-      loadLeaderboard((list)=> {
-        leaderList.innerHTML = '';
-        if (!list || list.length === 0) {
-          const item = document.createElement('li');
-          item.className = 'leader-item';
-          item.innerHTML = '<div style="text-align:center;width:100%;color:var(--muted)">No scores yet</div>';
-          leaderList.appendChild(item);
-          return;
-        }
-        const top = list.slice(0,20);
-        top.forEach((entry, idx) => {
-          const li = document.createElement('li');
-          li.className = 'leader-item';
-          const minutes = Math.floor((entry.time||0) / 60);
-          const seconds = (entry.time||0) % 60;
-          const timeStr = `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
-          const dateStr = entry.date ? new Date(entry.date).toLocaleDateString() : '';
-          li.innerHTML = `
-            <div style="display:flex;align-items:center;gap:8px">
-              <div class="leader-rank">${idx+1}</div>
-              <div style="min-width:110px">
-                <div style="font-weight:700;color:var(--highlight)">${escapeHtml(entry.name||'Player')}</div>
-                <div style="font-size:11px;color:var(--muted)">${entry.uid ? 'UID:' + String(entry.uid).slice(0,6) : ''}</div>
-              </div>
-            </div>
-            <div style="text-align:right">
-              <div class="leader-score">${entry.score||0}</div>
-              <div class="leader-details" style="font-size:11px;color:var(--muted)">${(entry.moves||0)} moves • ${timeStr}</div>
-              <div class="leader-details" style="font-size:11px;color:var(--muted)">${dateStr}</div>
-            </div>
-          `;
-          leaderList.appendChild(li);
+function loadLeaderboard() {
+    const box = document.getElementById("leaderboard");
+    db.ref("scores").orderByChild("time").limitToFirst(10).on("value", snap => {
+        box.innerHTML = "";
+        snap.forEach(x => {
+            const s = x.val();
+            box.innerHTML += `<p>${s.name} — ⏱ ${s.time}s | 🔁 ${s.moves}</p>`;
         });
-      });
-    }
+    });
+}
+</script>
 
-    // ---------------------------
-    // Save score (requires auth)
-    // ---------------------------
-    function attemptSaveScore() {
-      const user = auth.currentUser;
-      if (!user) {
-        // prompt sign-in
-        alert('আপনাকে প্রথমে সাইন-ইন করতে হবে স্কোর সেভ করার জন্য।');
-        signInWithPopup(auth, provider).catch(err => console.error('signin err', err));
-        return;
-      }
-      saveScore();
-    }
-
-    function saveScore() {
-      const user = auth.currentUser;
-      if (!user) {
-        alert('Not signed in.');
-        return;
-      }
-      const name = (playerNameInput.value || user.displayName || user.email || 'Player').trim().slice(0,20);
-      const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
-      const scoreData = {
-        name: name,
-        uid: user.uid,
-        score: state.score,
-        moves: state.moves,
-        time: elapsed,
-        date: new Date().toISOString()
-      };
-      push(leaderboardRef, scoreData)
-        .then(()=> {
-          hideSaveModal();
-          renderLeaderboard();
-          alert(`Score saved! ${escapeHtml(name)} - ${state.score} points`);
-        })
-        .catch((err)=> {
-          console.error('Save score err', err);
-          alert('Error saving score. Check console and your DB rules.');
-        });
-    }
-
-    // ---------------------------
-    // Utility
-    // ---------------------------
-    function escapeHtml(text) {
-      const d = document.createElement('div');
-      d.textContent = text;
-      return d.innerHTML;
-    }
-
-    // ---------------------------
-    // Initialize
-    // ---------------------------
-    window.addEventListener('DOMContentLoaded', init);
-
-  </script>
 </body>
 </html>
